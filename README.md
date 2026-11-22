@@ -31,13 +31,13 @@ mini-vscode/
     └── terminal_server.py
 ```
 
-## Setup & Run
-# Install WebSockets dependency:
+# Setup & Run
+## Install WebSockets dependency:
 ```
 pip install websockets
 ```
 
-# Start all services:
+## Start all services:
 ```
 cd mini-vscode
 chmod +x start.sh
@@ -46,12 +46,12 @@ chmod +x start.sh
 ## Open http://localhost:8000/ in your browser.
 
 
-## Keyboard Shortcuts
+# Keyboard Shortcuts
 
-# ​Ctrl+S / Cmd+S: Save active file
+## ​Ctrl+S / Cmd+S: Save active file
 
-# ​Ctrl+Shift+F / Cmd+Shift+F: Open Global Search
+## ​Ctrl+Shift+F / Cmd+Shift+F: Open Global Search
 
-# ​Alt+Shift+F: Format code in Monaco Editor
+## ​Alt+Shift+F: Format code in Monaco Editor
 
 
