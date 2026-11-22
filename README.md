@@ -29,7 +29,7 @@ mini-vscode/
 └── backend/
     ├── server.py
     └── terminal_server.py
-..
+```
 
 ## Setup & Run
 # Install WebSockets dependency:
