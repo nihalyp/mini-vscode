@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini VS Code</title>
+    <link rel="stylesheet" href="xterm.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/layout.css">
+</head>
+<body class="theme-dark">
+    <div class="workbench">
+        <!-- 1. Activity Bar -->
+        <aside class="activity-bar">
+            <div class="activity-top">
+                <button class="activity-btn active" id="toggle-explorer" title="Explorer">📁</button>
+                <button class="activity-btn" id="toggle-search" title="Search in Files">🔍</button>
+                <button class="activity-btn" id="toggle-preview" title="Live Preview">▶️</button>
+            </div>
+            <div class="activity-bottom">
+                <button class="activity-btn" id="toggle-theme" title="Switch Theme">🌓</button>
+            </div>
+        </aside>
+
+        <!-- 2. Sidebar (Explorer + Global Search) -->
+        <aside class="sidebar" id="sidebar">
+            <div id="explorer-view">
+                <div class="sidebar-header">
+                    <span>EXPLORER</span>
+                    <div class="sidebar-actions">
+                        <button id="open-folder-btn" title="Open Local Folder">📂</button>
+                        <button id="new-file-btn" title="New File">+📄</button>
+                        <button id="new-folder-btn" title="New Folder">+📁</button>
+                        <button id="download-zip-btn" title="Download Project as ZIP">📦</button>
+                    </div>
+                </div>
+                <div class="folder-title" id="root-folder-name">▼ MY-PROJECT</div>
+                <ul class="file-list" id="file-list"></ul>
+            </div>
+
+            <div id="search-view" class="hidden">
+                <div class="sidebar-header">
+                    <span>SEARCH</span>
+                </div>
+                <div class="search-box-wrap">
+                    <input type="text" id="global-search-input" class="search-input" placeholder="Search across files...">
+                    <div id="search-summary" class="search-summary">Type to search</div>
+                </div>
+                <ul class="search-results" id="search-results"></ul>
+            </div>
+        </aside>
+
+        <!-- 3. Main Editor & Preview Area -->
+        <main class="main-area">
+            <div class="top-bar-wrapper" style="display: flex; background: var(--bg-tabs); border-bottom: 1px solid var(--border-color);">
+                <div class="tabs-bar" id="tabs-bar" style="flex: 1; border-bottom: none;"></div>
+                <button id="run-code-btn" title="Run Code (Python / C / C++)" style="background: #28a745; color: white; border: none; padding: 0 14px; cursor: pointer; font-size: 12px; font-weight: bold;">▶ Run</button>
+            </div>
+
+            <div class="editor-split">
+                <div id="monaco-container" class="monaco-container"></div>
+                <div id="preview-pane" class="preview-pane hidden">
+                    <div class="preview-header">
+                        <span>LIVE PREVIEW</span>
+                        <div>
+                            <button id="refresh-preview" title="Refresh Preview">↻</button>
+                            <button id="close-preview" title="Close Preview">✕</button>
+                        </div>
+                    </div>
+                    <iframe id="preview-frame" sandbox="allow-scripts"></iframe>
+                </div>
+            </div>
+
+            <!-- 4. Bottom Panel (Interactive Terminal) -->
+            <div class="bottom-panel" id="bottom-panel" style="height: 220px;">
+                <div class="panel-header">
+                    <span>TERMINAL</span>
+                </div>
+                <div id="terminal-container" style="flex: 1; width: 100%; height: 100%; overflow: hidden;"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 5. Status Bar -->
+    <footer class="status-bar">
+        <div class="status-left">
+            <span>main*</span>
+            <span id="status-msg">Ready</span>
+        </div>
+        <div class="status-right">
+            <span id="cursor-pos">Ln 1, Col 1</span>
+            <span id="file-lang">PYTHON</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script>
+        var __amdDefine = window.define;
+        window.define = undefined;
+    </script>
+    <script src="xterm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        window.define = __amdDefine;
+    </script>
+    <script src="js/main.js?v=7"></script>
+</body>
+</html>
+
