@@ -23,7 +23,7 @@ let files = {
     },
     "app.py": {
         language: "python",
-        content: `for i in range(1, 6):\n    print(f"Line {i}: Running from Mini VS Code!")`,
+        content: `for i in range(1, 25):\n    print(f"Line {i}: Running from Mini VS Code!")`,
         handle: null
     }
 };
@@ -35,7 +35,23 @@ let editor;
 let isDark = true;
 let rootDirHandle = null;
 let term;
+let fitAddon;
 let socket;
+
+function fitTerminalSafe() {
+    if (!fitAddon || !term) return;
+    try {
+        fitAddon.fit();
+        term.scrollToBottom();
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: "resize",
+                cols: term.cols,
+                rows: term.rows
+            }));
+        }
+    } catch (_) {}
+}
 
 function getLanguageFromFilename(filename) {
     const ext = filename.split(".").pop().toLowerCase();
@@ -139,6 +155,7 @@ function switchSidebarView(viewName) {
         sidebar.classList.add("hidden");
         explorerBtn?.classList.remove("active");
         searchBtn?.classList.remove("active");
+        setTimeout(fitTerminalSafe, 50);
         return;
     }
 
@@ -157,6 +174,7 @@ function switchSidebarView(viewName) {
         input?.focus();
         runGlobalSearch();
     }
+    setTimeout(fitTerminalSafe, 50);
 }
 
 function runGlobalSearch() {
@@ -601,6 +619,7 @@ if (runCodeBtn) {
 function logConsole(text) {
     if (term) {
         term.write("\r\n" + String(text).replace(/\n/g, "\r\n") + "\r\n");
+        term.scrollToBottom();
     } else {
         const consoleEl = document.getElementById("output-console");
         if (consoleEl) consoleEl.textContent = text;
@@ -624,15 +643,31 @@ document.getElementById("toggle-search")?.addEventListener("click", () => switch
 document.getElementById("download-zip-btn")?.addEventListener("click", downloadProjectZip);
 document.getElementById("global-search-input")?.addEventListener("input", runGlobalSearch);
 
+document.getElementById("clear-terminal-btn")?.addEventListener("click", () => {
+    if (term) {
+        term.clear();
+    }
+});
+
+document.getElementById("expand-terminal-btn")?.addEventListener("click", () => {
+    const panel = document.getElementById("bottom-panel");
+    if (panel) {
+        panel.classList.toggle("expanded");
+        setTimeout(fitTerminalSafe, 80);
+    }
+});
+
 document.getElementById("toggle-preview")?.addEventListener("click", () => {
     const pane = document.getElementById("preview-pane");
     if (pane) pane.classList.toggle("hidden");
     updateLivePreview();
+    setTimeout(fitTerminalSafe, 50);
 });
 
 document.getElementById("refresh-preview")?.addEventListener("click", () => updateLivePreview());
 document.getElementById("close-preview")?.addEventListener("click", () => {
     document.getElementById("preview-pane")?.classList.add("hidden");
+    setTimeout(fitTerminalSafe, 50);
 });
 
 document.getElementById("toggle-theme")?.addEventListener("click", () => {
@@ -646,6 +681,10 @@ document.getElementById("toggle-theme")?.addEventListener("click", () => {
             ? { background: "#1e1e1e", foreground: "#cccccc" }
             : { background: "#ffffff", foreground: "#222222" };
     }
+});
+
+window.addEventListener("resize", () => {
+    fitTerminalSafe();
 });
 
 window.addEventListener("keydown", (e) => {
@@ -674,6 +713,7 @@ function initTerminal() {
 
     term = new Terminal({
         cursorBlink: true,
+        scrollback: 1000,
         fontSize: 13,
         fontFamily: "monospace",
         convertEol: true,
@@ -683,17 +723,26 @@ function initTerminal() {
         }
     });
 
+    if (typeof FitAddon !== "undefined" && FitAddon.FitAddon) {
+        fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+    }
+
     term.open(container);
+    setTimeout(fitTerminalSafe, 100);
     term.writeln("Connecting to ws://localhost:8765 ...");
 
     socket = new WebSocket("ws://localhost:8765");
 
     socket.onopen = () => {
         term.writeln("\x1b[32mConnected to terminal backend.\x1b[0m\r\n");
+        fitTerminalSafe();
     };
 
     socket.onmessage = (event) => {
-        term.write(event.data);
+        term.write(event.data, () => {
+            term.scrollToBottom();
+        });
     };
 
     socket.onclose = () => {
@@ -714,4 +763,3 @@ function initTerminal() {
 window.addEventListener("DOMContentLoaded", () => {
     initTerminal();
 });
-
